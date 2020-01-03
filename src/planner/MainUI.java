@@ -1,11 +1,17 @@
 package planner;
 
+import java.sql.Savepoint;
 import java.util.Calendar;
 
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -23,11 +29,13 @@ public class MainUI {
 	private GridPane days = new GridPane();
 	private BorderPane bp = new BorderPane();
 	private ScrollPane main = new ScrollPane(bp);
-	private IOEvents io = new IOEvents();
+	
+	private Calendar day;
 	
 	int today[] = new int[3];
 
 	public ScrollPane setUpCalander(Calendar day) {
+		this.day = day;
 		days = new GridPane();
 		bp.setCenter(days);
 		days.setVgap(25);
@@ -42,30 +50,6 @@ public class MainUI {
 
 
 
-
-		//7 day of week
-		//4 = week of the month
-		//2 = month starts at 0
-		//1 = year
-
-
-
-//		Calendar day2 =(Calendar) day.clone();
-//		day2.add(5, 64);
-//		int i = 0;
-//		while(true) {
-//			try {
-//				System.out.println(i + " day 0 " + day.get(i));
-//				System.out.println(i + " day 2 " + day2.get(i++));
-//			}
-//			catch(Exception ex) {
-//				break;
-//			}
-//		}
-
-
-
-
 		return main;
 	}
 
@@ -76,11 +60,15 @@ public class MainUI {
 		days.setVgap(25);
 		days.setHgap(25);
 
+		
+		
+
 
 		for (int i = 1; i < 8; i++) {
 			Label weekday = new Label(Misc.dayOfWeek(i));
 			weekday.setFont(Font.font("Bell MT", FontPosture.ITALIC, 20));
 			days.add(weekday, i , 0);
+			
 			
 		}
 
@@ -90,18 +78,20 @@ public class MainUI {
 		newSet.add(5,  (newSet.get(5) * -1) + 1);
 		for (int i = 0; i < max; i++) {
 			
-
 			Button b = new Button(newSet.get(5)+"");
 			b.setFont(Font.font("Areil", FontWeight.BLACK, 25));
 			days.add(b, newSet.get(7), newSet.get(4)); 
 			if (today[0] == newSet.get(1) & today[1] == newSet.get(2) & today[2] == newSet.get(5) ) {
 				b.setBackground(new Background(new BackgroundFill(Color.LAWNGREEN, CornerRadii.EMPTY, new Insets(1))));
 			}
-			newSet.add(5, 1);
+			
+			Calendar test = (Calendar)newSet.clone();
 			
 			b.setOnAction(e -> {
-				checkDay(newSet);
+				
+				checkDay(test);
 			});
+			newSet.add(5, 1);
 
 		}
 
@@ -110,12 +100,34 @@ public class MainUI {
 	}
 
 	public void checkDay(Calendar day) {
-		private InfoPane infoSection = new InfoPane();
-		for (int i = 0; i < io.currentEvents.size(); i++) {
-			if(io.currentEvents.get(i).day.equals(day)) {
-				infoSection.events.add(io.currentEvents.get(i));
-			}
-		}
+		
+		InfoPane infoSection = new InfoPane();
+		
+		bp.setCenter(infoSection.getPage(day, ""));
+		
+		infoSection.tBoxInfo.setText(infoSection.notes.toString());
+		ImageView cal = new ImageView(new Image("File:./src/planner/res/IconCAL.png"));
+		cal.setFitHeight(40);
+		cal.setFitWidth(40);
+		Button out = new Button("", cal);
+		
+		infoSection.gPane.add(out, 5, 0);
+		
+		
+		
+		infoSection.btnAddEvent.setOnAction(e -> {
+			
+			addEvent(infoSection);
+			
+		});
+		
+		out.setOnAction(e ->{
+			
+			infoSection.save(day, infoSection.events, infoSection.tBoxInfo.getText());
+			monthSetUp(day);
+			
+		});
+		
 		
 	}
 	
@@ -150,8 +162,7 @@ public class MainUI {
 		last.setLayoutY(0);
 		
 		
-//		gp.add(last, 0, 0);
-//		gp.add(next, 8, 0);
+
 
 		next.setOnAction(e -> {
 			day.add(2, 1);
@@ -165,6 +176,46 @@ public class MainUI {
 
 
 	}
+	
+	private void addEvent(InfoPane info) {
+		GridPane gp = new GridPane();
+		gp.setVgap(50);
+		gp.setHgap(25);
+		bp.setCenter(gp);
+		
+		
+		
+		Button btnCancel = new Button("Cancel");
+		btnCancel.setOnAction(x -> {
+			bp.setCenter(info.gPane);
+		});
+		String options[] = {"Other","HomeWork","Quiz","Project","Test","Midterm","Final"};
+		ComboBox<String> typeBox = new ComboBox<String>(FXCollections.observableArrayList(options));
+		typeBox.setPromptText("Pick here");
+		
+		TextArea tb = new TextArea();
+		tb.setPromptText("Add Details");
+		
+		Button submit = new Button("Submit");
+		submit.setOnAction(x-> {
+			Event e = new Event(typeBox.getValue(),this.day,tb.getText());
+			info.addEvent(e);
+			bp.setCenter(info.gPane);
+		});
+		submit.setMinSize(200, 50);;
+		submit.setFont(Font.font(25));
+		gp.add(submit, 5, 9,6,2);
+		gp.add(tb, 3, 2,5,7);
+		gp.add(typeBox, 5, 0,5,2);
+		gp.add(new Label("Type: "), 1, 0,5,2);
+		gp.add(btnCancel, 10, 0);
+		
+		
+		
+		
+		
+	}
+	
 
 
 

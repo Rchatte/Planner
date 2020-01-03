@@ -1,5 +1,7 @@
 package planner;
 
+import java.util.Calendar;
+
 public class Misc {
 	public static boolean isLeapYear(int y) {
 		return ((y % 4 == 0) & (y % 100 != 0 | y % 400 ==0));
@@ -99,5 +101,11 @@ public class Misc {
 
 		return date.toString();
 	}
+	
+	public static String getFileName(Calendar day) {
+		//return("C:\\Users\\Rohan\\eclipse-workspace\\planner\\src\\planner\\res\\test.csv");
+		return ("src/planner/res/month/"+day.get(2)+ "_"+day.get(1)+".csv");
+	}
+	
 
 }
