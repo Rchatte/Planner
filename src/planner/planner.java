@@ -24,10 +24,11 @@ public class planner extends Application {
 		//infoPane.getPage(day, "testing \n\n\n\n aaa"
 		Scene scene = new Scene
 				((cal.setUpCalander(day)),
-						800,700);
+						950,700);
 		
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Planner");
+		
 		primaryStage.show();
 	}
 	

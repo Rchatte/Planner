@@ -1,5 +1,6 @@
 package planner;
 
+import java.io.File;
 import java.util.Calendar;
 
 public class Misc {
@@ -103,8 +104,15 @@ public class Misc {
 	}
 	
 	public static String getFileName(Calendar day) {
+		File f = new File("./Months");
+		
+			if(!(f.exists())) {
+				f.mkdir();}
+		
+		
+			
 		//return("C:\\Users\\Rohan\\eclipse-workspace\\planner\\src\\planner\\res\\test.csv");
-		return ("src/planner/res/month/"+day.get(2)+ "_"+day.get(1)+".csv");
+		return ("./Months/"+day.get(2)+ "_"+day.get(1)+".csv");
 	}
 	
 

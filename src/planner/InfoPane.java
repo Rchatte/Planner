@@ -12,6 +12,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
@@ -28,11 +29,13 @@ public class InfoPane{
 	TextArea tBoxInfo = new TextArea(); //This was a label but was later changed to a textArea to make it editable
 	Calendar day;
 	Button btnAddEvent;
-	VBox vertical = new VBox();
+	VBox vertical;
+	Button calMenu;
+
 	StringBuilder notes = new StringBuilder("Error ifPaneGet");
 	IOEvents io = new IOEvents();
-	
-	 InfoPane(){
+	ScrollPane allEvents;
+	InfoPane(){
 		super();
 		tBoxInfo.setMaxSize(500, 350);
 		gPane.setVgap(25);
@@ -42,109 +45,174 @@ public class InfoPane{
 		gPane.add(lblDate, 0, 0,4,1);
 		gPane.add(tBoxInfo, 0, 1,5,5);
 	}
-	
+
 	public GridPane getPage(Calendar day,String info) {
-		
+
 		//5 = day 4 = year
 		StringBuilder date = new StringBuilder();
-		ImageView plus = new ImageView(new Image("File:./src/planner/res/plus.png"));
+		ImageView plus = new ImageView(new Image("plus.png"));
 		plus.setFitHeight(40);
 		plus.setFitWidth(40);
+
+		//"File:./src/planner/res/save.png"
+		ImageView save = new ImageView(new Image("save.png"));
+		save.setFitHeight(40);
+		save.setFitWidth(40);
 		
+		ImageView cal = new ImageView(new Image("cal.png"));
+		cal.setFitHeight(40);
+		cal.setFitWidth(40);
+		calMenu = new Button("", cal);
+
+		gPane.add(calMenu, 5, 0);
+		
+
 		btnAddEvent = new Button("", plus);
-		
-		
-		
-		
-		date.append(Misc.dayOfWeek(day.getFirstDayOfWeek()));
-		
+		Button btnSave = new Button("", save);
+		btnSave.setOnAction(e ->{
+			save(day, events, this.tBoxInfo.getText());
+		});
+
+
+
+		date.append(Misc.dayOfWeek(day.get(7)));
+
 		date.append(", "+ day.get(5) + ", " + day.get(1));
-		
-		
+
+
 		lblDate.setText(date.toString());
 		gPane.setAlignment(Pos.TOP_LEFT);
-		gPane.add(getList(day), 5, 1,4,7);
+
+
+
+		allEvents = getList(day);
+
+		gPane.add(allEvents, 5, 1,4,7);
 		gPane.add(btnAddEvent, 6, 0);
-		
+		gPane.add(btnSave, 7, 0);
 		//this must be done in the main Ui
-//		tBoxInfo.setText(info);
-		
-		
-		
+		//		tBoxInfo.setText(info);
+
+
+
 		return gPane;
 	} 
-	
+
 	public ScrollPane getList(Calendar day) {
-		
+
+
+		vertical = new VBox();
 		//GridPane gp = new GridPane();
 		ScrollPane sp = new ScrollPane(vertical);
-		
+
 		events = getEvents(day); //testing!!!
-		
+
 		for(int i = 0; i < events.size(); i++) {
 			//remove later
+			Event e = events.get(i);
 
-			
+
+			e.del.setOnAction(x->{
+
+				vertical.getChildren().remove(e);
+				events.remove(e);
+				save(day, events, info);
+			});
+
+
 			vertical.getChildren().add(events.get(i));
 			Line l = new Line(0, 0, 300,0 );
 			l.setStrokeWidth(5);
 			vertical.getChildren().add(l);
-			
-//			vertical.getChildren().add(e);
+
+
+
+
 		}
 		sp.setMaxSize(550, 450);
-		
+
 		return sp;
-		
+
 	}
-	
+
+	public ScrollPane getUpcoming(Calendar day) {
+
+
+		VBox vertical = new VBox();
+		//GridPane gp = new GridPane();
+		ScrollPane sp = new ScrollPane(vertical);
+		
+
+		for (int ev = 0; ev < 7; ev++) {
+
+			
+
+			events = getEvents(day); //testing!!!
+
+			for(int i = 0; i < events.size(); i++) {
+				//remove later
+				Event e = events.get(i);
+
+
+				e.del.setVisible(false);
+
+				vertical.getChildren().add(events.get(i));
+				Line l = new Line(0, 0, 300,0 );
+				l.setStrokeWidth(5);
+				vertical.getChildren().add(l);
+
+
+
+				
+			}
+			day.add(5, 1);	
+		
+		}
+		sp.setMaxSize(550, 450);
+
+		return sp;
+
+	}
+
+
+
+
 	private ArrayList<Event> getEvents(Calendar day){
-		
-		
-		
+
+
+
 		ArrayList<Event> items = new ArrayList<Event>();
-		
-		
+
+
 		String[] all = io.read(day);
-		
-		
+
+
 		//notes from saves;
 		notes = new StringBuilder(all[0].replace("(NexT_Line_)","\n"));
-		
+
 		for (int i = 1; i < all.length; i++) {
 			String[] sections = all[i].split("<_D_X>");
-			items.add(new Event(sections[0], day, sections[1].replace("(NexT_Line_)","\n")));
+			if(sections.length == 2)
+				items.add(new Event(sections[0], day, sections[1].replace("(NexT_Line_)","\n")));
 		}
-		
-		
-//		for (int i = 0; i < events.size(); i++) {
-//		}
-		
-		//check here from csv
-		//for now testing
-		
-		
-//		Calendar c = Calendar.getInstance();
-//		Event e1 = new Event("HW",c,"...");
-//		Event e2 = new Event("HW",c,"...");
-//		Event e3 = new Event("HW",c,"...");
-//		
-//		items.add(e1);
-//		items.add(e2);
-//		items.add(e3);
-		
+
+
+
 		return items;
-		
+
 	}
 
 	public void addEvent(Event e) {
 		events.add(e);
 		vertical.getChildren().add(e);
 	}
-	
+
+
+
+
 	public void save(Calendar day,ArrayList<Event> events,String info) {
 		io.write(day, events, info);
 	}
-	
-	
+
+
 }

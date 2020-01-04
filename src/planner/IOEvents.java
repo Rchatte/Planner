@@ -33,8 +33,10 @@ public class IOEvents {
 				temp.append(","+events.get(i).type +"<_D_X>"+events.get(i).Details);
 			}
 			
-			
 			lines.set(day.get(5) - 1, temp.toString().replace("\n", "(NexT_Line_)"));
+			
+			
+			
 			
 			
 			PrintWriter write = new PrintWriter(file);
@@ -68,7 +70,7 @@ public class IOEvents {
 
 				for(int i = 0; i < max; i++) {
 
-					print.append(i + "N/A\n");
+					print.append( "N/A\n");
 
 				}
 
