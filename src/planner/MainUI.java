@@ -208,6 +208,7 @@ public class MainUI {
 		TextArea tb = new TextArea();
 		tb.setPrefWidth(500);
 		tb.setFont(Font.font(13));
+		tb.setFont(15);
 		tb.setPromptText("Add Details");
 
 		Button submit = new Button("Submit");
